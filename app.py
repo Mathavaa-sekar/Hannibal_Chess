@@ -7,18 +7,10 @@ import chess
 import chess.pgn
 import uuid
 import os
-import smtplib
-import threading
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from engine import get_best_move, get_evaluation, new_game
 
 load_dotenv()
-
-GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
-TO_EMAIL = "tamathavaasekar@gmail.com"
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "chess_secret_key_change_in_production")
@@ -27,21 +19,7 @@ games: dict[str, chess.Board] = {}
 
 
 def _send_email(subject, body):
-    def _send():
-        try:
-            msg = MIMEMultipart()
-            msg["From"] = GMAIL_EMAIL
-            msg["To"] = TO_EMAIL
-            msg["Subject"] = subject
-            msg.attach(MIMEText(body, "plain", "utf-8"))
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()
-                server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
-                server.send_message(msg)
-            print(f"[Email] Sent: {subject}")
-        except Exception as e:
-            print(f"[Email] Failed: {e}")
-    threading.Thread(target=_send, daemon=True).start()
+    print(f"\n[LOG] {subject}\n{body}")
 
 
 def _get_board() -> chess.Board:
@@ -182,7 +160,7 @@ def new_game_route():
     session["game_id"] = gid
     session["player_color"] = player_color
     session["player_name"] = player_name
-    session["email_sent"] = False
+    session["game_logged"] = False
     games[gid] = chess.Board()
     new_game()
 
@@ -269,14 +247,14 @@ def make_move():
         return jsonify({"ok": False, "error": "Illegal move."})
 
     # Send "game started" email on FIRST move only
-    if not session.get("email_sent"):
+    if not session.get("game_logged"):
         name = session.get("player_name", "Unknown")
         color = session.get("player_color", "?")
         _send_email(
             f"[Hannibal] | New Game — {name} as {color.capitalize()}",
             f"Player: {name}\nColor: {color.capitalize()}\n\nFirst move played."
         )
-        session["email_sent"] = True
+        session["game_logged"] = True
 
     human_capture = board.is_capture(move)
     board.push(move)
