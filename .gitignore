@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment variables (SECRETS - never upload these)
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS junk
+Thumbs.db
+.DS_Store
