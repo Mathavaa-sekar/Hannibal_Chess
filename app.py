@@ -130,11 +130,11 @@ def _send_game_over_email(state):
 
     if state["status"] == "checkmate" and winner_color:
         if winner_color == player_color:
-            result_text = f"{player_name} won!"
+            result_text = f"{player_name} won against Hannibal Bot!"
         else:
-            result_text = "Hannibal Bot won!"
+            result_text = f"Hannibal Bot won against {player_name}!"
     else:
-        result_text = "Draw!"
+        result_text = f"Draw! ({player_name} as {player_color.capitalize()})"
 
     _send_email(
         f"[Hannibal] Game Over — {result_text}",
