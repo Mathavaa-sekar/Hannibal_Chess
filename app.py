@@ -8,6 +8,7 @@ import chess.pgn
 import uuid
 import os
 import smtplib
+import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
@@ -26,19 +27,21 @@ games: dict[str, chess.Board] = {}
 
 
 def _send_email(subject, body):
-    try:
-        msg = MIMEMultipart()
-        msg["From"] = GMAIL_EMAIL
-        msg["To"] = TO_EMAIL
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain", "utf-8"))
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
-            server.send_message(msg)
-        print(f"[Email] Sent: {subject}")
-    except Exception as e:
-        print(f"[Email] Failed: {e}")
+    def _send():
+        try:
+            msg = MIMEMultipart()
+            msg["From"] = GMAIL_EMAIL
+            msg["To"] = TO_EMAIL
+            msg["Subject"] = subject
+            msg.attach(MIMEText(body, "plain", "utf-8"))
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
+                server.send_message(msg)
+            print(f"[Email] Sent: {subject}")
+        except Exception as e:
+            print(f"[Email] Failed: {e}")
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def _get_board() -> chess.Board:
