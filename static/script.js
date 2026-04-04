@@ -106,14 +106,14 @@ const audio = (() => {
     src.start(); src.stop(ac.currentTime + duration);
   }
   return {
-    move()    { tone(600, "sine", 0.15, 0.05); noise(0.05, 0.08, 500, 2.0); },
-    capture() { tone(400, "sine", 0.25, 0.10); noise(0.10, 0.30, 300, 2.0); },
-    check()   { tone(523.25, "sine", 0.12, 0.30); setTimeout(() => tone(659.25, "sine", 0.10, 0.30), 150); },
+    move()    { tone(600, "sine", 0.45, 0.05); noise(0.05, 0.25, 500, 2.0); },
+    capture() { tone(400, "sine", 0.60, 0.10); noise(0.10, 0.70, 300, 2.0); },
+    check()   { tone(523.25, "sine", 0.40, 0.30); setTimeout(() => tone(659.25, "sine", 0.35, 0.30), 150); },
     gameEnd() { 
-      setTimeout(() => tone(523.25, "sine", 0.10, 0.50), 0); 
-      setTimeout(() => tone(659.25, "sine", 0.08, 0.50), 180); 
-      setTimeout(() => tone(698.46, "sine", 0.06, 0.50), 360); 
-      setTimeout(() => tone(783.99, "sine", 0.04, 0.60), 540); 
+      setTimeout(() => tone(523.25, "sine", 0.35, 0.50), 0); 
+      setTimeout(() => tone(659.25, "sine", 0.30, 0.50), 180); 
+      setTimeout(() => tone(698.46, "sine", 0.25, 0.50), 360); 
+      setTimeout(() => tone(783.99, "sine", 0.20, 0.60), 540); 
     },
   };
 })();
@@ -667,8 +667,36 @@ async function startNewGame(color) {
   }
 }
 
-btnPlayWhite.addEventListener("click", () => startNewGame("white"));
-btnPlayBlack.addEventListener("click", () => startNewGame("black"));
+function showConfirmPopup(color) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("confirmOverlay");
+    const title   = document.getElementById("confirmTitle");
+    const yesBtn  = document.getElementById("confirmYes");
+    const noBtn   = document.getElementById("confirmNo");
+
+    const label = color === "white" ? "White" : "Black";
+    title.textContent = "Start new game as " + label + "?";
+    overlay.classList.add("open");
+
+    function cleanup() {
+      overlay.classList.remove("open");
+      yesBtn.removeEventListener("click", onYes);
+      noBtn.removeEventListener("click", onNo);
+    }
+    function onYes()  { cleanup(); resolve(true); }
+    function onNo()   { cleanup(); resolve(false); }
+
+    yesBtn.addEventListener("click", onYes);
+    noBtn.addEventListener("click", onNo);
+  });
+}
+
+btnPlayWhite.addEventListener("click", () => {
+  showConfirmPopup("white").then(ok => { if (ok) startNewGame("white"); });
+});
+btnPlayBlack.addEventListener("click", () => {
+  showConfirmPopup("black").then(ok => { if (ok) startNewGame("black"); });
+});
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 let toastEl = null;
