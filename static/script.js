@@ -393,6 +393,19 @@ function updateSidebars(st) {
   }
   const hs = historyBody.closest(".history-scroll");
   if (hs) hs.scrollTop = hs.scrollHeight;
+
+  // Mobile collapsible history
+  const histMobile = document.getElementById("historyBodyMobile");
+  if (histMobile) {
+    histMobile.innerHTML = "";
+    for (let i = 0; i < hist.length; i += 2) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${Math.floor(i/2)+1}.</td><td>${hist[i] || ""}</td><td>${hist[i+1] || ""}</td>`;
+      histMobile.appendChild(tr);
+    }
+    const hsM = histMobile.closest(".history-scroll");
+    if (hsM) hsM.scrollTop = hsM.scrollHeight;
+  }
 }
 
 function isOver(status) {
@@ -697,6 +710,13 @@ btnPlayWhite.addEventListener("click", () => {
 btnPlayBlack.addEventListener("click", () => {
   showConfirmPopup("black").then(ok => { if (ok) startNewGame("black"); });
 });
+
+// ── Mobile history toggle ───────────────────────────────────────────────────
+document.getElementById("mobileHistoryToggle").addEventListener("click", () => {
+  document.getElementById("mobileHistoryToggle").classList.toggle("open");
+  document.getElementById("mobileHistoryContent").classList.toggle("open");
+});
+
 
 // ── Toast ────────────────────────────────────────────────────────────────────
 let toastEl = null;

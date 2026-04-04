@@ -102,6 +102,24 @@
         <pre class="pgn-text" id="pgnText"></pre>
       </div>
 
+      <!-- Mobile collapsible move history -->
+      <div class="mobile-history" id="mobileHistory">
+        <button class="mobile-history-toggle" id="mobileHistoryToggle">
+          <span>MOVE HISTORY</span>
+          <span class="mobile-history-arrow">▸</span>
+        </button>
+        <div class="mobile-history-content" id="mobileHistoryContent">
+          <div class="history-scroll">
+            <table class="history-table">
+              <thead>
+                <tr><th>#</th><th>White</th><th>Black</th></tr>
+              </thead>
+              <tbody id="historyBodyMobile"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
       <!-- New game — color selection -->
       <div class="new-game-area">
         <div class="section-label" style="width:100%;margin-bottom:0.4rem">NEW GAME</div>
