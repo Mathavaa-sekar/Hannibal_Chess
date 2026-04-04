@@ -120,6 +120,7 @@ def _board_state(board: chess.Board) -> dict:
         } if board.move_stack else None,
         "pgn": pgn_str,
         "winner_color": winner_color,
+        "checkers": list(board.checkers()),
     }
 
 

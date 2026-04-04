@@ -418,6 +418,11 @@ html, body {
   pointer-events: none;
   z-index: 1;
 }
+/* Checking piece red glow */
+.sq.checking-piece .piece-svg {
+  filter: drop-shadow(0 0 6px rgba(200, 50, 50, 0.8)) drop-shadow(0 0 2px rgba(200, 50, 50, 0.9));
+}
+
 /* Legal move ring (capture) */
 .sq.legal-capture::after {
   content: '';

@@ -203,6 +203,7 @@ let S = {
   lastMove:    null,
   selected:    null,
   legalDests:  [],
+  checkers:    [],
   playerColor: "white",
   busy:        false,
 };
@@ -269,7 +270,7 @@ function renderBoard(opts = {}) {
     el.innerHTML = "";
     el.classList.remove(
       "selected", "last-from", "last-to",
-      "in-check", "legal-empty", "legal-capture"
+      "in-check", "checking-piece", "legal-empty", "legal-capture"
     );
   });
 
@@ -283,6 +284,9 @@ function renderBoard(opts = {}) {
       if (p.color === S.turn && p.type === 6) {
         getSqEl(+sqStr)?.classList.add("in-check");
       }
+    }
+    for (const sq of S.checkers) {
+      getSqEl(sq)?.classList.add("checking-piece");
     }
   }
 
@@ -423,6 +427,7 @@ function applyState(st, opts = {}) {
   S.status     = st.status;
   S.result_msg = st.result_msg;
   S.lastMove   = st.last_move;
+  S.checkers   = st.checkers  || [];
   S.selected   = null;
   S.legalDests = [];
 
@@ -461,6 +466,7 @@ function applyLocalMove(fromSq, toSq, promoPiece) {
   S.lastMove   = { from: fromSq, to: toSq };
   S.selected   = null;
   S.legalDests = [];
+  S.checkers   = [];
   S.turn = S.turn === "white" ? "black" : "white";
   S.status = "playing";
 
