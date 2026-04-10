@@ -211,14 +211,14 @@ let S = {
 // ── Coordinate helpers — flip when playing Black ─────────────────────────────
 function sqToRowCol(sq) {
   if (S.playerColor === "black") {
-    return { row: Math.floor(sq / 8), col: sq % 8 };
+    return { row: Math.floor(sq / 8), col: 7 - (sq % 8) };
   }
   return { row: 7 - Math.floor(sq / 8), col: sq % 8 };
 }
 
 function rowColToSq(row, col) {
   if (S.playerColor === "black") {
-    return row * 8 + col;
+    return row * 8 + (7 - col);
   }
   return (7 - row) * 8 + col;
 }

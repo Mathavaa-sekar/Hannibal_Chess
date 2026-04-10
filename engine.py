@@ -251,6 +251,38 @@ def evaluate(board: chess.Board) -> int:
     if not endgame:
         score += _king_safety(board, chess.WHITE)
         score -= _king_safety(board, chess.BLACK)
+
+    # ── Endgame mating potential ──
+    # When one side has big material advantage, reward:
+    #   - enemy king being on the edge/corner (far from center)
+    #   - our king being close to the enemy king
+    w_mat = 0
+    b_mat = 0
+    for _pt in range(2, 7):
+        w_mat += PIECE_VAL[_pt] * len(board.pieces(_pt, chess.WHITE))
+        b_mat += PIECE_VAL[_pt] * len(board.pieces(_pt, chess.BLACK))
+
+    if w_mat - b_mat >= 400:
+        ek = board.king(chess.BLACK)
+        ok = board.king(chess.WHITE)
+        if ek is not None and ok is not None:
+            ef = chess.square_file(ek)
+            er = chess.square_rank(ek)
+            cd = max(abs(ef - 3.5), abs(er - 3.5))
+            score += int(cd * 20)
+            kd = chess.square_distance(ok, ek)
+            score += int((14 - kd) * 8)
+    elif b_mat - w_mat >= 400:
+        ek = board.king(chess.WHITE)
+        ok = board.king(chess.BLACK)
+        if ek is not None and ok is not None:
+            ef = chess.square_file(ek)
+            er = chess.square_rank(ek)
+            cd = max(abs(ef - 3.5), abs(er - 3.5))
+            score -= int(cd * 20)
+            kd = chess.square_distance(ok, ek)
+            score -= int((14 - kd) * 8)
+
     return score
 
 
@@ -315,13 +347,21 @@ def _quiesce(board: chess.Board, alpha: int, beta: int, ply: int) -> int:
     if ply > 8:
         return alpha
 
+    is_eg = _is_endgame(board)
+
     for move in board.legal_moves:
-        if not board.is_capture(move):
+        is_cap = board.is_capture(move)
+        is_eg_check = False
+        if not is_cap and is_eg and ply < 2:
+            is_eg_check = board.gives_check(move)
+
+        if not is_cap and not is_eg_check:
             continue
-        # Delta pruning (stand_pat is already side-to-move relative)
-        victim = board.piece_at(move.to_square)
-        if victim and not move.promotion:
-            if stand_pat + PIECE_VAL[victim.piece_type] + 200 < alpha:
+
+        # Delta pruning — only for captures, skip for endgame checks
+        if is_cap and not move.promotion:
+            victim = board.piece_at(move.to_square)
+            if victim and stand_pat + PIECE_VAL[victim.piece_type] + 200 < alpha:
                 continue
 
         board.push(move)
